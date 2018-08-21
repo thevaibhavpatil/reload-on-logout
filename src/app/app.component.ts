@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private service: AppService,
-    // private router: Router,
+    private router: Router,
  private localStorageService: LocalStorageService
   ) {
     appComponentRef = this;
@@ -32,10 +32,12 @@ export class AppComponent implements OnInit {
   }
   login() {
     this.localStorageService.set('loginUser', true);
+    this.router.navigate(['search']);
   }
   logout() {
     this.localStorageService.remove('loginUser');
     this.localStorageService.set('logout', true);
+    this.router.navigate(['']);
   }
   /**
    * This function refresh all tabs open in browser when user logout from one tab
@@ -44,20 +46,42 @@ export class AppComponent implements OnInit {
     this.winObj.addEventListener('storage', function (e) {
       console.log('appComponentRef', appComponentRef);
       console.log('localstorage changes');
+
+      /* Refresh all tabs in browser at login */
       setTimeout(() => {
-        if (e.storageArea.lsebillingLoginUser) {
-          console.log('!e.storageArea.getItem(\'ebillingLoginUser\')', e.storageArea.lsebillingLoginUser);
-          e.storageArea.lslogout = false;
-        }
-        console.log('!e.storageArea.lslogout', e.storageArea.lslogout);
-        if (e.storageArea.lslogout === 'true') {
-          setTimeout(() => {
-            location.reload();
-            e.storageArea.lslogout = false;
-            // appComponentRef.router.navigate(['']);
-          }, 1000);
+        if (e.storageArea['lsloginUser']) {
+          // console.log("!e.storageArea.getItem('loginUser')", e.storageArea.lsloginUser);
+          if (e.storageArea['lslogout'] === 'true') {
+            console.log('e.storageArea.lslogout', e.storageArea['lslogout']);
+            setTimeout(() => {
+              location.reload();
+              e.storageArea['lslogout'] = false;
+              appComponentRef.router.navigate(['search']);
+            }, 1000);
+          }
+        } else {
+          e.storageArea['lslogout'] = true;
+          appComponentRef.router.navigate(['']);
         }
       }, 0);
+
+      /* Refresh all tabs in browser at logout */
+
+      // setTimeout(() => {
+      //   if (e.storageArea['lsloginUser']) {
+      //     console.log('!e.storageArea.getItem(\'ebillingLoginUser\')', e.storageArea['lsloginUser']);
+      //     e.storageArea['lslogout'] = false;
+      //   }
+      //   console.log('!e.storageArea.lslogout', e.storageArea['lslogout']);
+      //   if (e.storageArea['lslogout'] === 'true') {
+      //     setTimeout(() => {
+      //       location.reload();
+      //       e.storageArea['lslogout'] = false;
+      //       // appComponentRef.router.navigate(['']);
+      //     }, 1000);
+      //   }
+      // }, 0);
+
     });
   }
 }
